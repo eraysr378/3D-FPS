@@ -99,7 +99,7 @@ public class Gun : Weapon
         isScopeEnabled = false;
         OnScopeDisabled?.Invoke(this, EventArgs.Empty);
     }
-    public void Shoot()
+    public override void Shoot()
     {
         if (GetBulletsLeft() <= 0)
         {
@@ -147,7 +147,7 @@ public class Gun : Weapon
     }
 
 
-    public void StopShooting()
+    public override void StopShooting()
     {
         // this if added to fix animation when a single shot fired
         if (shootTimer >= GetTimeBetweenShots() && isShooting)

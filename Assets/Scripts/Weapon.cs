@@ -19,6 +19,12 @@ public class Weapon : MonoBehaviour
     {
 
     }
+    public virtual void Shoot()
+    {
+    }
+    public virtual void StopShooting()
+    {
+    }
     public float GetPullTime()
     {
         return pullTime;
