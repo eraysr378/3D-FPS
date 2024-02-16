@@ -15,34 +15,29 @@ public class PlayerAnimator : MonoBehaviour
     [SerializeField] private Animator animator;
 
     private PlayerMotor playerMotor;
-    private PlayerGun playerGun;
+    private PlayerWeapon playerWeapon;
     // Start is called before the first frame update
     void Start()
     {
         playerMotor = GetComponent<PlayerMotor>();
-        playerGun = GetComponent<PlayerGun>();
-        playerGun.OnGunChanged += PlayerGun_OnGunChanged;
-        playerGun.OnReloadStart += PlayerGun_OnReloadStart;
-        playerGun.OnReloadEnd += PlayerGun_OnReloadEnd;
-        playerGun.OnReloadCancel += PlayerGun_OnReloadCancel;
-        playerGun.OnScopeEnabled += PlayerGun_OnScopeEnabled;
-        playerGun.OnScopeDisabled += PlayerGun_OnScopeDisabled;
-        playerGun.OnShootingStarted += PlayerGun_OnShootingStarted;
-        playerGun.OnShootingEnd += PlayerGun_OnShootingEnd;
-        playerGun.OnGunPulled += PlayerGun_OnGunPulled;
+        playerWeapon = GetComponent<PlayerWeapon>();
+        playerWeapon.OnWeaponChanged += PlayerWeapon_OnWeaponChanged;
+        playerWeapon.OnWeaponPulled += PlayerWeapon_OnWeaponPulled;
 
 
     }
 
-    private void PlayerGun_OnGunPulled(object sender, System.EventArgs e)
+    private void PlayerWeapon_OnWeaponPulled(object sender, System.EventArgs e)
     {
         ResetIdleAnimation();
     }
 
-    private void PlayerGun_OnGunChanged(object sender,  PlayerGun.OnGunChangedEventArgs e)
+    private void PlayerWeapon_OnWeaponChanged(object sender, PlayerWeapon.OnWeaponChangedEventArgs e)
     {
+        UnsubscribeFromWeapon(e.previousWeapon);
+        SubscribeToWeapon(playerWeapon.GetWeapon());
         animator.SetTrigger("ChangeGun");
-        animator.SetTrigger(playerGun.GetGun().gameObject.name);
+        animator.SetTrigger(playerWeapon.GetWeapon().gameObject.name);
         // make idle the current animation so that animation blend tree works
         ResetIdleAnimation();
     }
@@ -139,30 +134,50 @@ public class PlayerAnimator : MonoBehaviour
         animator.SetFloat(X, 0);
         animator.SetFloat(Y, 0);
     }
-    //private void UnsubscribeFromGun(Gun gun)
-    //{
-    //    if(gun  != null)
-    //    {
-    //        gun.OnReloadStart -= PlayerGun_OnReloadStart;
-    //        gun.OnReloadEnd -= PlayerGun_OnReloadEnd;
-    //        gun.OnReloadCancel -= PlayerGun_OnReloadCancel;
-    //        gun.OnScopeEnabled -= PlayerGun_OnScopeEnabled;
-    //        gun.OnScopeDisabled -= PlayerGun_OnScopeDisabled;
-    //        gun.OnShootingStarted -= PlayerGun_OnShootingStarted;
-    //        gun.OnShootingEnd -= PlayerGun_OnShootingEnd;
-    //    }
-    //}
-    //private void SubscribeToGun(Gun gun)
-    //{
-    //    if (gun != null)
-    //    {
-    //        gun.OnReloadStart += PlayerGun_OnReloadStart;
-    //        gun.OnReloadEnd += PlayerGun_OnReloadEnd;
-    //        gun.OnReloadCancel += PlayerGun_OnReloadCancel;
-    //        gun.OnScopeEnabled += PlayerGun_OnScopeEnabled;
-    //        gun.OnScopeDisabled += PlayerGun_OnScopeDisabled;
-    //        gun.OnShootingStarted += PlayerGun_OnShootingStarted;
-    //        gun.OnShootingEnd += PlayerGun_OnShootingEnd;
-    //    }
-    //}
+    private void UnsubscribeFromWeapon(Weapon weapon)
+    {
+        if (weapon == null)
+        {
+            return;
+        }
+        weapon.OnShootingStarted -= PlayerGun_OnShootingStarted;
+        weapon.OnShootingEnd -= PlayerGun_OnShootingEnd;
+        Gun gun = weapon.GetComponent<Gun>();
+        if (gun != null)
+        {
+            gun.OnReloadStart -= PlayerGun_OnReloadStart;
+            gun.OnReloadEnd -= PlayerGun_OnReloadEnd;
+            gun.OnReloadCancel -= PlayerGun_OnReloadCancel;
+            gun.OnScopeEnabled -= PlayerGun_OnScopeEnabled;
+            gun.OnScopeDisabled -= PlayerGun_OnScopeDisabled;
+        }
+        Melee melee = weapon.GetComponent<Melee>();
+        if (melee != null)
+        {
+
+        }
+    }
+    private void SubscribeToWeapon(Weapon weapon)
+    {
+        if (weapon == null)
+        {
+            return;
+        }
+        weapon.OnShootingStarted += PlayerGun_OnShootingStarted;
+        weapon.OnShootingEnd += PlayerGun_OnShootingEnd;
+        Gun gun = weapon.GetComponent<Gun>();
+        if (gun != null)
+        {
+            gun.OnReloadStart += PlayerGun_OnReloadStart;
+            gun.OnReloadEnd += PlayerGun_OnReloadEnd;
+            gun.OnReloadCancel += PlayerGun_OnReloadCancel;
+            gun.OnScopeEnabled += PlayerGun_OnScopeEnabled;
+            gun.OnScopeDisabled += PlayerGun_OnScopeDisabled;
+        }
+        Melee melee = weapon.GetComponent<Melee>();
+        if (melee != null)
+        {
+
+        }
+    }
 }

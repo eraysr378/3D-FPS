@@ -5,11 +5,13 @@ using UnityEngine;
 public class GunOnGround : Interactable
 {
     [SerializeField] private Gun gun;
-    [SerializeField] private PlayerGun playerGun;
+    [SerializeField] private PlayerWeapon playerWeapon;
     public override void Interact()
     {
        base.Interact();
         Debug.Log(gameObject.name + " interact");
-        playerGun.AddGun(gun);
+        gun.SetCamera(playerWeapon.GetCamera());
+        gun.SetRecoil(playerWeapon.GetRecoil());
+        playerWeapon.AddWeapon(gun);
     }
 }

@@ -9,7 +9,7 @@ public class InputManager : MonoBehaviour
     private PlayerInput playerInput;
     private PlayerMotor motor;
     private PlayerLook look;
-    private PlayerGun playerGun;
+    private PlayerWeapon playerWeapon;
     // Start is called before the first frame update
     private void Awake()
     {
@@ -17,12 +17,12 @@ public class InputManager : MonoBehaviour
         onFoot = playerInput.OnFoot;
         motor = GetComponent<PlayerMotor>();
         look = GetComponent<PlayerLook>();
-        playerGun = GetComponent<PlayerGun>();
+        playerWeapon = GetComponent<PlayerWeapon>();
 
 
         onFoot.Jump.performed += ctx => motor.Jump();
-        onFoot.Reload.performed += ctx => playerGun.Reload();
-        onFoot.Scope.performed += ctx => playerGun.EnableDisableScope();
+        onFoot.Reload.performed += ctx => playerWeapon.Reload();
+        onFoot.Scope.performed += ctx => playerWeapon.EnableDisableScope();
 
         
     }
@@ -51,18 +51,18 @@ public class InputManager : MonoBehaviour
     }
     private void HandleShootInput()
     {
-        if(playerGun.GetGun() == null)
+        if(playerWeapon.GetWeapon() == null)
         {
             Debug.Log("Input manager: gun is null");
             return;
         }
         if ( onFoot.Shoot.IsInProgress())
         {
-            playerGun.Shoot();
+            playerWeapon.Shoot();
         }
-        else if(playerGun.IsShooting()) 
+        else 
         {
-            playerGun.StopShooting();
+            playerWeapon.StopShooting();
         }
 
     }

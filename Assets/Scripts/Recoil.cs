@@ -3,36 +3,39 @@ using UnityEngine;
 
 public class Recoil : MonoBehaviour
 {
-    [SerializeField] private PlayerGun playerGun;
+    [SerializeField] private PlayerWeapon playerWeapon;
     private Vector3 currentRotation;
     private Vector3 targetRotation;
     private bool isScopeEnabled;
 
     void Start()
     {
-        playerGun = GetComponentInParent<PlayerGun>();
+        playerWeapon = GetComponentInParent<PlayerWeapon>();
     }
 
     void Update()
     {
-       if(playerGun.GetGun() == null)
+        Gun gun = playerWeapon.GetWeapon()?.GetComponent<Gun>();
+        if (gun == null)
         {
             return;
         }
-        isScopeEnabled = playerGun.IsScopeEnabled();
-        targetRotation = Vector3.Lerp(targetRotation, Vector3.zero, playerGun.GetGun().GetReturnSpeed() * Time.deltaTime);
-        currentRotation = Vector3.Slerp(currentRotation, targetRotation, playerGun.GetGun().GetSnappiness() * Time.fixedDeltaTime);
+        isScopeEnabled = gun.IsScopeEnabled();
+        targetRotation = Vector3.Lerp(targetRotation, Vector3.zero, gun.GetReturnSpeed() * Time.deltaTime);
+        currentRotation = Vector3.Slerp(currentRotation, targetRotation, gun.GetSnappiness() * Time.fixedDeltaTime);
         transform.localRotation = Quaternion.Euler(currentRotation);
     }
     public void RecoilFire()
     {
-        if(isScopeEnabled)
+        Gun gun = playerWeapon.GetWeapon().GetComponent<Gun>();
+
+        if (isScopeEnabled)
         {
-            targetRotation += new Vector3(playerGun.GetGun().GetScopedRecoil().x, Random.Range(-playerGun.GetGun().GetScopedRecoil().y, playerGun.GetGun().GetScopedRecoil().y), Random.Range(-playerGun.GetGun().GetScopedRecoil().z, playerGun.GetGun().GetScopedRecoil().z));
+            targetRotation += new Vector3(gun.GetScopedRecoil().x, Random.Range(-gun.GetScopedRecoil().y, gun.GetScopedRecoil().y), Random.Range(-gun.GetScopedRecoil().z, gun.GetScopedRecoil().z));
         }
         else
         {
-            targetRotation += new Vector3(playerGun.GetGun().GetHipfireRecoil().x, Random.Range(-playerGun.GetGun().GetHipfireRecoil().y, playerGun.GetGun().GetHipfireRecoil().y), Random.Range(-playerGun.GetGun().GetHipfireRecoil().z, playerGun.GetGun().GetHipfireRecoil().z));
+            targetRotation += new Vector3(gun.GetHipfireRecoil().x, Random.Range(-gun.GetHipfireRecoil().y, gun.GetHipfireRecoil().y), Random.Range(-gun.GetHipfireRecoil().z, gun.GetHipfireRecoil().z));
         }
     }
 }
