@@ -2548,6 +2548,7 @@ MonoBehaviour:
   mask:
     serializedVersion: 2
     m_Bits: 64
+  cam: {fileID: 0}
 --- !u!114 &770214872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3155,6 +3156,7 @@ MonoBehaviour:
   mask:
     serializedVersion: 2
     m_Bits: 64
+  cam: {fileID: 836664148}
 --- !u!114 &863396980
 MonoBehaviour:
   m_ObjectHideFlags: 0

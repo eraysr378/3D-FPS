@@ -6,14 +6,13 @@ public class PlayerInteract : MonoBehaviour
 {
     [SerializeField] private float distance = 3f;
     [SerializeField] private LayerMask mask;
+    [SerializeField] private Camera cam;
 
     private InputManager inputManager;
     private PlayerUI playerUI;
-    private Camera cam;
     // Start is called before the first frame update
     void Awake()
     {
-        cam = GetComponentInChildren<Camera>();
         playerUI = GetComponent<PlayerUI>();
         inputManager = GetComponent<InputManager>();
     }
@@ -28,12 +27,14 @@ public class PlayerInteract : MonoBehaviour
         RaycastHit hit;
         if(Physics.Raycast(ray, out hit, distance, mask))
         {
+            Debug.Log("hit collider is " + hit.collider.name);
             if(hit.collider.GetComponent<Interactable>() != null) 
             {
                 Interactable interactable = hit.collider.GetComponent<Interactable>();
                 playerUI.UpdateText(interactable.GetPromptMessage());
                 if (inputManager.onFoot.Interact.triggered)
                 {
+                    Debug.Log("e pressed");
                     interactable.Interact();
                 }
             }

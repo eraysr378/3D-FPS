@@ -14,7 +14,6 @@ public class Gun : Weapon
     [SerializeField] private float bulletsLeft;
     [SerializeField] private float reloadTime;
     [SerializeField] private bool isReloading;
-    [SerializeField] private bool isShooting;
 
     [SerializeField] private LayerMask hitLayerMask;
     [SerializeField] private bool isScopeEnabled;
@@ -29,6 +28,7 @@ public class Gun : Weapon
     [SerializeField] private float headshotDamage;
     [SerializeField] private float bodyshotDamage;
     [SerializeField] private float legshotDamage;
+    private Animator animator;
     private Recoil recoil;
     private Camera cam;
 
@@ -37,6 +37,7 @@ public class Gun : Weapon
     private float shootTimer;
     private void Awake()
     {
+        animator = GetComponent<Animator>();
     }
     private void Start()
     {
@@ -68,6 +69,8 @@ public class Gun : Weapon
         reloadTimer = 0;
         isReloading = true;
         DisableScope();
+        animator.SetTrigger("ReloadTrigger");
+        animator.SetBool("Reload", true);
         OnReloadStart?.Invoke(this, EventArgs.Empty);
     }
     private void EndReloading()
@@ -75,11 +78,14 @@ public class Gun : Weapon
         SetBulletsLeft(GetMagCapacity());
         isReloading = false;
         OnReloadEnd?.Invoke(this, EventArgs.Empty);
+        animator.SetBool("Reload", false);
+
     }
     public void CancelReloading()
     {
         isReloading = false;
         OnReloadCancel?.Invoke(this, EventArgs.Empty);
+        animator.SetBool("Reload", false);
     }
 
 
@@ -166,10 +172,7 @@ public class Gun : Weapon
     {
         return isScopeEnabled;
     }
-    public bool IsShooting()
-    {
-        return isShooting;
-    }
+
 
     public float GetBulletsLeft()
     {

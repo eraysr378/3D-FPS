@@ -6,6 +6,8 @@ using UnityEngine;
 public class PlayerWeapon : MonoBehaviour
 {
     public event EventHandler OnWeaponPulled;
+    public event EventHandler OnShootingStarted;
+    public event EventHandler OnShootingEnd;
     public event EventHandler<OnWeaponChangedEventArgs> OnWeaponChanged;
     public class OnWeaponChangedEventArgs : EventArgs
     {
@@ -37,6 +39,14 @@ public class PlayerWeapon : MonoBehaviour
 
     private void PlayerWeapon_OnWeaponChanged(object sender, OnWeaponChangedEventArgs e)
     {
+        if (e.previousWeapon != null)
+        {
+            e.previousWeapon.OnShootingStarted -= PlayerWeapon_OnShootingStarted;
+            e.previousWeapon.OnShootingEnd -= PlayerWeapon_OnShootingEnd;
+        }
+        weapon.OnShootingStarted += PlayerWeapon_OnShootingStarted;
+        weapon.OnShootingEnd += PlayerWeapon_OnShootingEnd;
+
         Gun gun = weapon.GetComponent<Gun>();
         if (gun != null)
         {
@@ -47,6 +57,16 @@ public class PlayerWeapon : MonoBehaviour
         pullTimer = 0;
         isWeaponPulled = false;
     }
+    private void PlayerWeapon_OnShootingStarted(object sender, EventArgs e)
+    {
+        OnShootingStarted?.Invoke(this, EventArgs.Empty);
+
+    }
+    private void PlayerWeapon_OnShootingEnd(object sender, EventArgs e)
+    {
+        OnShootingEnd?.Invoke(this, EventArgs.Empty);
+    }
+
 
     void Start()
     {
@@ -63,7 +83,7 @@ public class PlayerWeapon : MonoBehaviour
             if (weaponList.Count > 0)
             {
                 currentWeaponIndex++;
-                if(currentWeaponIndex >= weaponList.Count)
+                if (currentWeaponIndex >= weaponList.Count)
                 {
                     currentWeaponIndex = 0;
                 }
@@ -104,7 +124,10 @@ public class PlayerWeapon : MonoBehaviour
     }
     public void EnableDisableScope()
     {
-
+        if (weapon == null)
+        {
+            return;
+        }
         Gun gun = weapon.GetComponent<Gun>();
         if (gun == null || !isWeaponPulled)
         {
@@ -128,7 +151,7 @@ public class PlayerWeapon : MonoBehaviour
     }
     public void StopShooting()
     {
-        if(weapon != null && isWeaponPulled)
+        if (weapon != null && isWeaponPulled)
         {
             weapon.StopShooting();
         }
@@ -150,8 +173,8 @@ public class PlayerWeapon : MonoBehaviour
     {
         return weapon;
     }
-   
- 
+
+
     public Camera GetCamera()
     {
         return cam;
@@ -160,5 +183,13 @@ public class PlayerWeapon : MonoBehaviour
     {
         return recoil;
 
+    }
+    public bool IsShooting()
+    {
+        if (weapon == null)
+        {
+            return false;
+        }
+        return weapon.IsShooting();
     }
 }

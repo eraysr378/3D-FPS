@@ -6,8 +6,12 @@ public class Weapon : MonoBehaviour
 {
     public event EventHandler OnShootingStarted;
     public event EventHandler OnShootingEnd;
+    [SerializeField] protected bool isShooting;
+
     [SerializeField] private float timeBetweenShots;
     [SerializeField] private float pullTime; // for pull animation
+   
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -40,5 +44,9 @@ public class Weapon : MonoBehaviour
     protected void InvokeOnShootingStarted()
     {
         OnShootingStarted?.Invoke(this, EventArgs.Empty);
+    }
+    public bool IsShooting()
+    {
+        return isShooting;
     }
 }

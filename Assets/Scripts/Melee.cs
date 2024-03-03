@@ -5,7 +5,6 @@ using UnityEngine;
 public class Melee : Weapon
 {
 
-    private bool isShooting;
     private float shootTimer;
 
     // Start is called before the first frame update

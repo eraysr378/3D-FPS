@@ -16,15 +16,34 @@ public class PlayerAnimator : MonoBehaviour
 
     private PlayerMotor playerMotor;
     private PlayerWeapon playerWeapon;
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
         playerMotor = GetComponent<PlayerMotor>();
         playerWeapon = GetComponent<PlayerWeapon>();
         playerWeapon.OnWeaponChanged += PlayerWeapon_OnWeaponChanged;
         playerWeapon.OnWeaponPulled += PlayerWeapon_OnWeaponPulled;
+        playerWeapon.OnShootingStarted += PlayerWeapon_OnShootingStarted;
+        playerWeapon.OnShootingEnd += PlayerWeapon_OnShootingEnd;
+    }
+    // Start is called before the first frame update
+    void Start()
+    {
 
 
+
+    }
+
+    private void PlayerWeapon_OnShootingEnd(object sender, System.EventArgs e)
+    {
+        animator.SetBool(IS_SHOOTING, false);
+        // make idle the current animation so that animation blend tree works
+        ResetIdleAnimation();
+    }
+
+    private void PlayerWeapon_OnShootingStarted(object sender, System.EventArgs e)
+    {
+        animator.SetBool(IS_SHOOTING, true);
+        animator.SetTrigger(SHOOT_TRIGGER);
     }
 
     private void PlayerWeapon_OnWeaponPulled(object sender, System.EventArgs e)
@@ -40,19 +59,6 @@ public class PlayerAnimator : MonoBehaviour
         animator.SetTrigger(playerWeapon.GetWeapon().gameObject.name);
         // make idle the current animation so that animation blend tree works
         ResetIdleAnimation();
-    }
-
-    private void PlayerGun_OnShootingEnd(object sender, System.EventArgs e)
-    {
-        animator.SetBool(IS_SHOOTING, false);
-        // make idle the current animation so that animation blend tree works
-        ResetIdleAnimation();
-    }
-
-    private void PlayerGun_OnShootingStarted(object sender, System.EventArgs e)
-    {
-        animator.SetBool(IS_SHOOTING, true);
-        animator.SetTrigger(SHOOT_TRIGGER);
     }
 
     private void PlayerGun_OnScopeDisabled(object sender, System.EventArgs e)
@@ -140,8 +146,6 @@ public class PlayerAnimator : MonoBehaviour
         {
             return;
         }
-        weapon.OnShootingStarted -= PlayerGun_OnShootingStarted;
-        weapon.OnShootingEnd -= PlayerGun_OnShootingEnd;
         Gun gun = weapon.GetComponent<Gun>();
         if (gun != null)
         {
@@ -163,8 +167,6 @@ public class PlayerAnimator : MonoBehaviour
         {
             return;
         }
-        weapon.OnShootingStarted += PlayerGun_OnShootingStarted;
-        weapon.OnShootingEnd += PlayerGun_OnShootingEnd;
         Gun gun = weapon.GetComponent<Gun>();
         if (gun != null)
         {

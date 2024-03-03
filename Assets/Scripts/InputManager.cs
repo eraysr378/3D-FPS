@@ -13,7 +13,7 @@ public class InputManager : MonoBehaviour
     // Start is called before the first frame update
     private void Awake()
     {
-        playerInput = new PlayerInput();   
+        playerInput = new PlayerInput();
         onFoot = playerInput.OnFoot;
         motor = GetComponent<PlayerMotor>();
         look = GetComponent<PlayerLook>();
@@ -24,10 +24,10 @@ public class InputManager : MonoBehaviour
         onFoot.Reload.performed += ctx => playerWeapon.Reload();
         onFoot.Scope.performed += ctx => playerWeapon.EnableDisableScope();
 
-        
+
     }
 
-   
+
 
 
     // Update is called once per frame
@@ -43,7 +43,7 @@ public class InputManager : MonoBehaviour
     }
     private void FixedUpdate()
     {
-       
+
     }
     private void LateUpdate()
     {
@@ -51,16 +51,16 @@ public class InputManager : MonoBehaviour
     }
     private void HandleShootInput()
     {
-        if(playerWeapon.GetWeapon() == null)
+        if (playerWeapon.GetWeapon() == null)
         {
-            Debug.Log("Input manager: gun is null");
+            //Debug.Log("Input manager: gun is null");
             return;
         }
-        if ( onFoot.Shoot.IsInProgress())
+        if (onFoot.Shoot.IsInProgress())
         {
             playerWeapon.Shoot();
         }
-        else 
+        else
         {
             playerWeapon.StopShooting();
         }
@@ -68,7 +68,7 @@ public class InputManager : MonoBehaviour
     }
     private void HandleSprintInput()
     {
-        if (onFoot.Movement.ReadValue<Vector2>().y > 0 &&!motor.IsSprinting() && onFoot.Sprint.IsInProgress())
+        if (onFoot.Movement.ReadValue<Vector2>().y > 0 && !motor.IsSprinting() && onFoot.Sprint.IsInProgress())
         {
             motor.Sprint();
         }
@@ -100,5 +100,5 @@ public class InputManager : MonoBehaviour
     {
         onFoot.Disable();
     }
- 
+
 }

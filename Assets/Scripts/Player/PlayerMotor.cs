@@ -30,13 +30,26 @@ public class PlayerMotor : MonoBehaviour
     private CharacterController controller;
     private Vector3 playerVelocity;
 
-    [SerializeField]  private float slideTimer;
+    [SerializeField] private float slideTimer;
+    private PlayerWeapon playerWeapon;
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        playerWeapon = GetComponent<PlayerWeapon>();
+        playerWeapon.OnShootingStarted += PlayerWeapon_OnShootingStarted;
+
 
     }
+
+    private void PlayerWeapon_OnShootingStarted(object sender, System.EventArgs e)
+    {
+        if (!isSliding && isGrounded)
+        {
+            StopSprint();
+        }
+    }
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -48,7 +61,15 @@ public class PlayerMotor : MonoBehaviour
     void Update()
     {
         isGrounded = controller.isGrounded;
-        if (controllerVelocity.magnitude >= sprintSpeed-1 && !isSliding)
+       
+        HandleSliding();
+        HandleCrouch();
+
+    }
+    private void HandleSliding()
+    {
+        // to be able to slide, the player should sprint for some time
+        if (controllerVelocity.magnitude >= sprintSpeed - 1 && !isSliding)
         {
             slideTimer += Time.deltaTime;
         }
@@ -56,10 +77,10 @@ public class PlayerMotor : MonoBehaviour
         {
             slideTimer = 0;
         }
-        
+
         if (isGrounded && slideTimer > 1 && isCrouching && !isSliding)
         {
-            canSlide = true;      
+            canSlide = true;
         }
         else
         {
@@ -69,14 +90,14 @@ public class PlayerMotor : MonoBehaviour
         {
             Slide();
         }
-        if(isSliding && !isCrouching)
+        // if player stands up, cancel sliding
+        if (isSliding && !isCrouching)
         {
             speed = walkSpeed;
             isSliding = false;
-            
+
         }
-
-
+        // slowdown player gradually when sliding
         if (isSliding && speed > 0)
         {
             if (speed > 8)
@@ -99,12 +120,11 @@ public class PlayerMotor : MonoBehaviour
                 speed = crouchSpeed;
             }
         }
-
+        // when player is not sliding anymore, make him move with crouch speed
         if (isCrouching && !isSliding)
         {
             speed = crouchSpeed;
         }
-        HandleCrouch();
 
     }
     public void ProcessMove(Vector2 input)
@@ -121,7 +141,7 @@ public class PlayerMotor : MonoBehaviour
             {
                 isWalking = false;
             }
-            if(isSliding)
+            if (isSliding)
             {
                 controller.Move(slideDirection * speed * Time.deltaTime);
 
@@ -185,11 +205,12 @@ public class PlayerMotor : MonoBehaviour
     }
     public void Sprint()
     {
-        if (isCrouching || !isWalking ||isSliding)
+        if (isCrouching || !isWalking || isSliding || playerWeapon.IsShooting())
         {
             isSprinting = false;
             return;
         }
+
         isSprinting = true;
         speed = sprintSpeed;
     }
@@ -222,7 +243,7 @@ public class PlayerMotor : MonoBehaviour
             if (isCrouching && controller.height > crouchHeight)
             {
                 controller.height -= Time.deltaTime * 6;
-               
+
                 if (controller.height < crouchHeight)
                 {
                     controller.height = crouchHeight;
