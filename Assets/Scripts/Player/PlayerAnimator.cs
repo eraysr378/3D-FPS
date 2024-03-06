@@ -9,6 +9,8 @@ public class PlayerAnimator : MonoBehaviour
     private const string IS_SHOOTING = "IsShooting";
     private const string SHOOT_TRIGGER = "ShootTrigger";
     private const string RELOAD_TRIGGER = "ReloadTrigger";
+    private const string CHANGE_WEAPON = "ChangeWeapon";
+    private const string WEAPON_TYPE = "WeaponType";
 
     private const string X = "x";
     private const string Y = "y";
@@ -22,29 +24,62 @@ public class PlayerAnimator : MonoBehaviour
         playerWeapon = GetComponent<PlayerWeapon>();
         playerWeapon.OnWeaponChanged += PlayerWeapon_OnWeaponChanged;
         playerWeapon.OnWeaponPulled += PlayerWeapon_OnWeaponPulled;
-        playerWeapon.OnShootingStarted += PlayerWeapon_OnShootingStarted;
-        playerWeapon.OnShootingEnd += PlayerWeapon_OnShootingEnd;
+        Weapon.OnShootingStarted += Weapon_OnShootingStarted;
+        Weapon.OnShootingEnd += Weapon_OnShootingEnd;
+        Gun.OnScopeEnabled += Gun_OnScopeEnabled;
+        Gun.OnScopeDisabled += Gun_OnScopeDisabled;
+        Gun.OnReloadStart += Gun_OnReloadStart;
+        Gun.OnReloadEnd += Gun_OnReloadEnd;
+        Gun.OnReloadCancel += Gun_OnReloadCancel;
     }
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-
-
-
+        animator.SetTrigger("Punch");
+    }
+    private void Gun_OnReloadCancel(object sender, System.EventArgs e)
+    {
+        animator.SetBool(RELOAD, false);
+        // make idle the current animation so that animation blend tree works
+        ResetIdleAnimation();
     }
 
-    private void PlayerWeapon_OnShootingEnd(object sender, System.EventArgs e)
+    private void Gun_OnReloadEnd(object sender, System.EventArgs e)
+    {
+        animator.SetBool(RELOAD, false);
+
+        // make idle the current animation so that animation blend tree works
+        ResetIdleAnimation();
+    }
+
+    private void Gun_OnReloadStart(object sender, System.EventArgs e)
+    {
+        animator.SetBool(RELOAD, true);
+        animator.SetTrigger(RELOAD_TRIGGER);
+    }
+
+    private void Gun_OnScopeDisabled(object sender, System.EventArgs e)
+    {
+        animator.SetBool(ENABLE_SCOPE, false);
+    }
+
+    private void Gun_OnScopeEnabled(object sender, System.EventArgs e)
+    {
+        animator.SetBool(ENABLE_SCOPE, true);
+    }
+
+    private void Weapon_OnShootingEnd(object sender, System.EventArgs e)
     {
         animator.SetBool(IS_SHOOTING, false);
         // make idle the current animation so that animation blend tree works
         ResetIdleAnimation();
     }
 
-    private void PlayerWeapon_OnShootingStarted(object sender, System.EventArgs e)
+    private void Weapon_OnShootingStarted(object sender, System.EventArgs e)
     {
         animator.SetBool(IS_SHOOTING, true);
         animator.SetTrigger(SHOOT_TRIGGER);
     }
+
 
     private void PlayerWeapon_OnWeaponPulled(object sender, System.EventArgs e)
     {
@@ -53,44 +88,13 @@ public class PlayerAnimator : MonoBehaviour
 
     private void PlayerWeapon_OnWeaponChanged(object sender, PlayerWeapon.OnWeaponChangedEventArgs e)
     {
-        UnsubscribeFromWeapon(e.previousWeapon);
-        SubscribeToWeapon(playerWeapon.GetWeapon());
-        animator.SetTrigger("ChangeGun");
-        animator.SetTrigger(playerWeapon.GetWeapon().gameObject.name);
-        // make idle the current animation so that animation blend tree works
-        ResetIdleAnimation();
-    }
-
-    private void PlayerGun_OnScopeDisabled(object sender, System.EventArgs e)
-    {
-        animator.SetBool(ENABLE_SCOPE, false);
-    }
-
-    private void PlayerGun_OnScopeEnabled(object sender, System.EventArgs e)
-    {
-        animator.SetBool(ENABLE_SCOPE, true);
-    }
-
-    private void PlayerGun_OnReloadCancel(object sender, System.EventArgs e)
-    {
-        animator.SetBool(RELOAD, false);
-        // make idle the current animation so that animation blend tree works
-        ResetIdleAnimation();
-    }
-    private void PlayerGun_OnReloadEnd(object sender, System.EventArgs e)
-    {
-        animator.SetBool(RELOAD, false);
+        animator.SetInteger(WEAPON_TYPE, (int)playerWeapon.GetWeapon().GetWeaponType());
+        animator.SetTrigger(CHANGE_WEAPON);
 
         // make idle the current animation so that animation blend tree works
         ResetIdleAnimation();
-
-
     }
-    private void PlayerGun_OnReloadStart(object sender, System.EventArgs e)
-    {
-        animator.SetBool(RELOAD, true);
-        animator.SetTrigger(RELOAD_TRIGGER);
-    }
+
 
     // Update is called once per frame
     void Update()
@@ -140,46 +144,6 @@ public class PlayerAnimator : MonoBehaviour
         animator.SetFloat(X, 0);
         animator.SetFloat(Y, 0);
     }
-    private void UnsubscribeFromWeapon(Weapon weapon)
-    {
-        if (weapon == null)
-        {
-            return;
-        }
-        Gun gun = weapon.GetComponent<Gun>();
-        if (gun != null)
-        {
-            gun.OnReloadStart -= PlayerGun_OnReloadStart;
-            gun.OnReloadEnd -= PlayerGun_OnReloadEnd;
-            gun.OnReloadCancel -= PlayerGun_OnReloadCancel;
-            gun.OnScopeEnabled -= PlayerGun_OnScopeEnabled;
-            gun.OnScopeDisabled -= PlayerGun_OnScopeDisabled;
-        }
-        Melee melee = weapon.GetComponent<Melee>();
-        if (melee != null)
-        {
 
-        }
-    }
-    private void SubscribeToWeapon(Weapon weapon)
-    {
-        if (weapon == null)
-        {
-            return;
-        }
-        Gun gun = weapon.GetComponent<Gun>();
-        if (gun != null)
-        {
-            gun.OnReloadStart += PlayerGun_OnReloadStart;
-            gun.OnReloadEnd += PlayerGun_OnReloadEnd;
-            gun.OnReloadCancel += PlayerGun_OnReloadCancel;
-            gun.OnScopeEnabled += PlayerGun_OnScopeEnabled;
-            gun.OnScopeDisabled += PlayerGun_OnScopeDisabled;
-        }
-        Melee melee = weapon.GetComponent<Melee>();
-        if (melee != null)
-        {
 
-        }
-    }
 }

@@ -6,8 +6,7 @@ using UnityEngine;
 public class PlayerWeapon : MonoBehaviour
 {
     public event EventHandler OnWeaponPulled;
-    public event EventHandler OnShootingStarted;
-    public event EventHandler OnShootingEnd;
+
     public event EventHandler<OnWeaponChangedEventArgs> OnWeaponChanged;
     public class OnWeaponChangedEventArgs : EventArgs
     {
@@ -39,13 +38,7 @@ public class PlayerWeapon : MonoBehaviour
 
     private void PlayerWeapon_OnWeaponChanged(object sender, OnWeaponChangedEventArgs e)
     {
-        if (e.previousWeapon != null)
-        {
-            e.previousWeapon.OnShootingStarted -= PlayerWeapon_OnShootingStarted;
-            e.previousWeapon.OnShootingEnd -= PlayerWeapon_OnShootingEnd;
-        }
-        weapon.OnShootingStarted += PlayerWeapon_OnShootingStarted;
-        weapon.OnShootingEnd += PlayerWeapon_OnShootingEnd;
+
 
         Gun gun = weapon.GetComponent<Gun>();
         if (gun != null)
@@ -56,15 +49,6 @@ public class PlayerWeapon : MonoBehaviour
         }
         pullTimer = 0;
         isWeaponPulled = false;
-    }
-    private void PlayerWeapon_OnShootingStarted(object sender, EventArgs e)
-    {
-        OnShootingStarted?.Invoke(this, EventArgs.Empty);
-
-    }
-    private void PlayerWeapon_OnShootingEnd(object sender, EventArgs e)
-    {
-        OnShootingEnd?.Invoke(this, EventArgs.Empty);
     }
 
 
@@ -77,6 +61,7 @@ public class PlayerWeapon : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         if (Input.GetKeyDown(KeyCode.Q))
         {
             Weapon prevWeapon = weapon;

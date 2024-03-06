@@ -37,12 +37,12 @@ public class PlayerMotor : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         playerWeapon = GetComponent<PlayerWeapon>();
-        playerWeapon.OnShootingStarted += PlayerWeapon_OnShootingStarted;
+        Weapon.OnShootingStarted += Weapon_OnShootingStarted;
 
 
     }
 
-    private void PlayerWeapon_OnShootingStarted(object sender, System.EventArgs e)
+    private void Weapon_OnShootingStarted(object sender, System.EventArgs e)
     {
         if (!isSliding && isGrounded)
         {
@@ -61,10 +61,8 @@ public class PlayerMotor : MonoBehaviour
     void Update()
     {
         isGrounded = controller.isGrounded;
-       
         HandleSliding();
         HandleCrouch();
-
     }
     private void HandleSliding()
     {

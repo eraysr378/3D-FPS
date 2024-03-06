@@ -7,38 +7,28 @@ public class MainCamera : MonoBehaviour
     private PlayerWeapon playerWeapon;
     private Camera cam;
     private bool isScopeEnabled;
-    private void Awake()
+    private void Start()
     {
         playerWeapon = GetComponentInParent<PlayerWeapon>();
         cam = GetComponent<Camera>();
         playerWeapon.OnWeaponChanged += PlayerWeapon_OnWeaponChanged;
+        Gun.OnScopeEnabled += Gun_OnScopeEnabled;
+        Gun.OnScopeDisabled += Gun_OnScopeDisabled;
     }
-    private void PlayerWeapon_OnWeaponChanged(object sender, PlayerWeapon.OnWeaponChangedEventArgs e)
-    {
-        isScopeEnabled = false;
-        if (e.previousWeapon is Gun)
-        {
-            e.previousWeapon.GetComponent<Gun>().OnScopeEnabled -= PlayerGun_OnScopeEnabled;
-            e.previousWeapon.GetComponent<Gun>().OnScopeDisabled -= PlayerGun_OnScopeDisabled;
-        }
-        if (playerWeapon.GetWeapon() is Gun)
-        {
-            playerWeapon.GetWeapon().GetComponent<Gun>().OnScopeEnabled += PlayerGun_OnScopeEnabled;
-            playerWeapon.GetWeapon().GetComponent<Gun>().OnScopeDisabled += PlayerGun_OnScopeDisabled;
-        }
-    }
-
-    private void PlayerGun_OnScopeDisabled(object sender, System.EventArgs e)
+    private void Gun_OnScopeDisabled(object sender, System.EventArgs e)
     {
         isScopeEnabled = false;
     }
 
-    private void PlayerGun_OnScopeEnabled(object sender, System.EventArgs e)
+    private void Gun_OnScopeEnabled(object sender, System.EventArgs e)
     {
         isScopeEnabled = true;
     }
-    void Start()
+
+    private void PlayerWeapon_OnWeaponChanged(object sender, PlayerWeapon.OnWeaponChangedEventArgs e)
     {
+        isScopeEnabled = false;
+
     }
 
     void Update()
@@ -51,6 +41,5 @@ public class MainCamera : MonoBehaviour
         {
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 60, 0.1f);
         }
-
     }
 }

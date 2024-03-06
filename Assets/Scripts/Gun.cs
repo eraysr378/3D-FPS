@@ -1,15 +1,16 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem.LowLevel;
 
 public class Gun : Weapon
 {
-    public event EventHandler OnReloadStart;
-    public event EventHandler OnReloadCancel;
-    public event EventHandler OnReloadEnd;
-    public event EventHandler OnScopeEnabled;
-    public event EventHandler OnScopeDisabled;
+    public static event EventHandler OnReloadStart;
+    public static event EventHandler OnReloadCancel;
+    public static event EventHandler OnReloadEnd;
+    public static event EventHandler OnScopeEnabled;
+    public static event EventHandler OnScopeDisabled;
 
-
+    [SerializeField] private GameObject muzzlePrefab;
     [SerializeField] private float magCapacity;
     [SerializeField] private float bulletsLeft;
     [SerializeField] private float reloadTime;
@@ -18,6 +19,7 @@ public class Gun : Weapon
     [SerializeField] private LayerMask hitLayerMask;
     [SerializeField] private bool isScopeEnabled;
     [SerializeField] private GameObject bulletHitPrefab;
+
 
     [Header("Recoil System")]
     [SerializeField] private Vector3 hipfireRecoil;
@@ -35,6 +37,7 @@ public class Gun : Weapon
 
     private float reloadTimer;
     private float shootTimer;
+    private float consecutiveShotCount;
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -97,8 +100,6 @@ public class Gun : Weapon
             isScopeEnabled = true;
             OnScopeEnabled?.Invoke(this, EventArgs.Empty);
         }
-
-
     }
     public void DisableScope()
     {
@@ -121,6 +122,7 @@ public class Gun : Weapon
         Vector3 direction = cam.transform.forward;
         if (Physics.Raycast(cam.transform.position, direction, out rayHit, 35f, hitLayerMask))
         {
+            CreateBulletImpactEffect(rayHit);
             Enemy enemy = rayHit.collider.gameObject.GetComponentInParent<Enemy>();
             if (enemy != null)
             {
@@ -146,9 +148,12 @@ public class Gun : Weapon
         }
 
         shootTimer = 0;
+        consecutiveShotCount++;
         SetBulletsLeft(GetBulletsLeft() - 1);
         recoil.RecoilFire();
         isShooting = true;
+        muzzlePrefab.SetActive(false); // if activated previously and not disabled yet, make sure it is disabled.
+        muzzlePrefab.SetActive(true);
         InvokeOnShootingStarted();
     }
 
@@ -160,11 +165,13 @@ public class Gun : Weapon
         {
             InvokeOnShootingEnd();
             isShooting = false;
+            consecutiveShotCount = 0;
         }
 
     }
     public void ForceStopShooting()
     {
+        consecutiveShotCount = 0;
         InvokeOnShootingEnd();
         isShooting = false;
     }
@@ -230,5 +237,19 @@ public class Gun : Weapon
     public void SetCamera(Camera camera)
     {
         cam = camera;
+    }
+    public override float GetShootClipPitch()
+    {
+        float pitch = UnityEngine.Random.Range(1.2f,1.4f);
+        //pitch += Mathf.Sqrt(consecutiveShotCount / 30);
+        Debug.Log(pitch);
+        return pitch;
+    }
+    private void CreateBulletImpactEffect(RaycastHit2D rayHit)
+    {
+        GameObject hole = Instantiate(bulletHitPrefab,rayHit.point,Quaternion.identity);
+
+
+        hole.transform.SetParent(rayHit.collider.transform);
     }
 }
