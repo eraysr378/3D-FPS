@@ -13,5 +13,6 @@ public class GunOnGround : Interactable
         gun.SetCamera(playerWeapon.GetCamera());
         gun.SetRecoil(playerWeapon.GetRecoil());
         playerWeapon.AddWeapon(gun);
+        Destroy(gameObject);
     }
 }

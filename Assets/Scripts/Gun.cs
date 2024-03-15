@@ -37,7 +37,6 @@ public class Gun : Weapon
 
     private float reloadTimer;
     private float shootTimer;
-    private float consecutiveShotCount;
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -72,8 +71,12 @@ public class Gun : Weapon
         reloadTimer = 0;
         isReloading = true;
         DisableScope();
-        animator.SetTrigger("ReloadTrigger");
-        animator.SetBool("Reload", true);
+        if (animator != null)
+        {
+            animator.SetTrigger("ReloadTrigger");
+            animator.SetBool("Reload", true);
+
+        }
         OnReloadStart?.Invoke(this, EventArgs.Empty);
     }
     private void EndReloading()
@@ -81,18 +84,30 @@ public class Gun : Weapon
         SetBulletsLeft(GetMagCapacity());
         isReloading = false;
         OnReloadEnd?.Invoke(this, EventArgs.Empty);
-        animator.SetBool("Reload", false);
+        if (animator != null)
+        {
+            animator.SetBool("Reload", false);
 
+        }
     }
     public void CancelReloading()
     {
         isReloading = false;
         OnReloadCancel?.Invoke(this, EventArgs.Empty);
-        animator.SetBool("Reload", false);
+        if (animator != null)
+        {
+            animator.SetBool("Reload", false);
+
+        }
     }
 
 
-
+    public override void ChangeWeapon()
+    {
+        CancelReloading();
+        DisableScope();
+        ForceStopShooting();
+    }
     public void EnableScope()
     {
         if (!isReloading && !isShooting)
@@ -105,6 +120,17 @@ public class Gun : Weapon
     {
         isScopeEnabled = false;
         OnScopeDisabled?.Invoke(this, EventArgs.Empty);
+    }
+    public override void RightClickAction()
+    {
+        if (isScopeEnabled)
+        {
+            DisableScope();
+        }
+        else
+        {
+            EnableScope();
+        }
     }
     public override void Shoot()
     {
@@ -122,7 +148,7 @@ public class Gun : Weapon
         Vector3 direction = cam.transform.forward;
         if (Physics.Raycast(cam.transform.position, direction, out rayHit, 35f, hitLayerMask))
         {
-            CreateBulletImpactEffect(rayHit);
+
             Enemy enemy = rayHit.collider.gameObject.GetComponentInParent<Enemy>();
             if (enemy != null)
             {
@@ -144,11 +170,10 @@ public class Gun : Weapon
                         break;
                 }
             }
-            Instantiate(GetBulletHitPrefab(), rayHit.point, Quaternion.identity);
+            CreateBulletImpactEffect(rayHit);
         }
 
         shootTimer = 0;
-        consecutiveShotCount++;
         SetBulletsLeft(GetBulletsLeft() - 1);
         recoil.RecoilFire();
         isShooting = true;
@@ -165,16 +190,10 @@ public class Gun : Weapon
         {
             InvokeOnShootingEnd();
             isShooting = false;
-            consecutiveShotCount = 0;
         }
 
     }
-    public void ForceStopShooting()
-    {
-        consecutiveShotCount = 0;
-        InvokeOnShootingEnd();
-        isShooting = false;
-    }
+
     public bool IsScopeEnabled()
     {
         return isScopeEnabled;
@@ -240,16 +259,15 @@ public class Gun : Weapon
     }
     public override float GetShootClipPitch()
     {
-        float pitch = UnityEngine.Random.Range(1.2f,1.4f);
+        float pitch = UnityEngine.Random.Range(1.2f, 1.4f);
         //pitch += Mathf.Sqrt(consecutiveShotCount / 30);
         Debug.Log(pitch);
         return pitch;
     }
-    private void CreateBulletImpactEffect(RaycastHit2D rayHit)
+    private void CreateBulletImpactEffect(RaycastHit rayHit)
     {
-        GameObject hole = Instantiate(bulletHitPrefab,rayHit.point,Quaternion.identity);
 
+        GameObject hole = Instantiate(bulletHitPrefab, rayHit.point, Quaternion.identity);
 
-        hole.transform.SetParent(rayHit.collider.transform);
     }
 }

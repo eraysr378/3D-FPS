@@ -39,16 +39,9 @@ public class PlayerWeapon : MonoBehaviour
     private void PlayerWeapon_OnWeaponChanged(object sender, OnWeaponChangedEventArgs e)
     {
 
-
-        Gun gun = weapon.GetComponent<Gun>();
-        if (gun != null)
-        {
-            gun.CancelReloading();
-            gun.DisableScope();
-            gun.ForceStopShooting();
-        }
         pullTimer = 0;
         isWeaponPulled = false;
+        weapon.ChangeWeapon();
     }
 
 
@@ -75,6 +68,7 @@ public class PlayerWeapon : MonoBehaviour
                 weapon = weaponList[currentWeaponIndex];
                 weapon.gameObject.SetActive(true);
                 OnWeaponChanged?.Invoke(this, new OnWeaponChangedEventArgs { previousWeapon = prevWeapon });
+
 
             }
             if (prevWeapon != null && weapon != prevWeapon)
@@ -125,6 +119,13 @@ public class PlayerWeapon : MonoBehaviour
         else
         {
             gun.EnableScope();
+        }
+    }
+    public void RightClickAction()
+    {
+        if (weapon != null && isWeaponPulled)
+        {
+            weapon.RightClickAction();
         }
     }
     public void Shoot()

@@ -22,7 +22,7 @@ public class InputManager : MonoBehaviour
 
         onFoot.Jump.performed += ctx => motor.Jump();
         onFoot.Reload.performed += ctx => playerWeapon.Reload();
-        onFoot.Scope.performed += ctx => playerWeapon.EnableDisableScope();
+        onFoot.Scope.performed += ctx => playerWeapon.RightClickAction();
 
 
     }

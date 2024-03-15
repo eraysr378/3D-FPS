@@ -8,9 +8,12 @@ public class PlayerAnimator : MonoBehaviour
     private const string ENABLE_SCOPE = "EnableScope";
     private const string IS_SHOOTING = "IsShooting";
     private const string SHOOT_TRIGGER = "ShootTrigger";
+    private const string SECONDARY_ATTACK_TRIGGER= "SecondaryAttackTrigger";
+
     private const string RELOAD_TRIGGER = "ReloadTrigger";
     private const string CHANGE_WEAPON = "ChangeWeapon";
     private const string WEAPON_TYPE = "WeaponType";
+    private const string IS_SECONDARY_ATTACKING = "IsSecondaryAttacking";
 
     private const string X = "x";
     private const string Y = "y";
@@ -22,6 +25,10 @@ public class PlayerAnimator : MonoBehaviour
     {
         playerMotor = GetComponent<PlayerMotor>();
         playerWeapon = GetComponent<PlayerWeapon>();
+     
+    }
+    private void Start()
+    {
         playerWeapon.OnWeaponChanged += PlayerWeapon_OnWeaponChanged;
         playerWeapon.OnWeaponPulled += PlayerWeapon_OnWeaponPulled;
         Weapon.OnShootingStarted += Weapon_OnShootingStarted;
@@ -31,11 +38,24 @@ public class PlayerAnimator : MonoBehaviour
         Gun.OnReloadStart += Gun_OnReloadStart;
         Gun.OnReloadEnd += Gun_OnReloadEnd;
         Gun.OnReloadCancel += Gun_OnReloadCancel;
+        Melee.OnSecondaryAttackStarted += Melee_OnSecondaryAttackStarted;
+        Melee.OnSecondaryAttackEnd += Melee_OnSecondaryAttackEnd;
     }
-    private void Start()
+
+    private void Melee_OnSecondaryAttackEnd(object sender, System.EventArgs e)
     {
-        animator.SetTrigger("Punch");
+        animator.SetBool(IS_SECONDARY_ATTACKING, false);
+        // make idle the current animation so that animation blend tree works
+        ResetIdleAnimation();
     }
+
+    private void Melee_OnSecondaryAttackStarted(object sender, System.EventArgs e)
+    {
+        animator.SetBool(IS_SECONDARY_ATTACKING, true);
+        animator.SetTrigger(SECONDARY_ATTACK_TRIGGER);
+    }
+
+
     private void Gun_OnReloadCancel(object sender, System.EventArgs e)
     {
         animator.SetBool(RELOAD, false);

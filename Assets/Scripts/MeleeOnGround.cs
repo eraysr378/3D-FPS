@@ -11,5 +11,6 @@ public class MeleeOnGround : Interactable
         base.Interact();
         Debug.Log(gameObject.name + " interact");
         playerWeapon.AddWeapon(melee);
+        Destroy(gameObject);
     }
 }

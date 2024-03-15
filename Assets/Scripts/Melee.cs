@@ -1,10 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Melee : Weapon
 {
-
+    static public event EventHandler OnSecondaryAttackStarted;
+    static public event EventHandler OnSecondaryAttackEnd;
+    [SerializeField] private float secondaryAttackDuration;
+    [SerializeField]  private bool isSecondaryAttacking;
     private float shootTimer;
 
     // Start is called before the first frame update
@@ -16,14 +20,22 @@ public class Melee : Weapon
     // Update is called once per frame
     void Update()
     {
-        if (shootTimer < GetTimeBetweenShots())
+        shootTimer += Time.deltaTime;
+        if (shootTimer > secondaryAttackDuration && isSecondaryAttacking)
         {
-            shootTimer += Time.deltaTime;
+            isSecondaryAttacking = false;
+            OnSecondaryAttackEnd?.Invoke(this,EventArgs.Empty);
         }
+    }
+    public override void ChangeWeapon()
+    {
+        isSecondaryAttacking = false;
+        ForceStopShooting();
+        OnSecondaryAttackEnd?.Invoke(this, EventArgs.Empty);
     }
     public override void Shoot()
     {
-        if (shootTimer < GetTimeBetweenShots())
+        if (shootTimer < GetTimeBetweenShots() || isSecondaryAttacking)
         {
             return;
         }
@@ -42,5 +54,16 @@ public class Melee : Weapon
         }
 
     }
+    public override void RightClickAction()
+    {
+        if (shootTimer < secondaryAttackDuration)
+        {
+            return;
+        }
+        shootTimer = 0;
+        isSecondaryAttacking = true;
+        OnSecondaryAttackStarted?.Invoke(this, EventArgs.Empty);
+    }
+
 }
 

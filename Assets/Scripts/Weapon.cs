@@ -4,7 +4,10 @@ using System;
 public enum WeaponType
 {
     Punch,
-    TacticalRifle
+    TacticalRifle,
+    Knife,
+    Pistol
+
 }
 public class Weapon : MonoBehaviour
 {
@@ -32,8 +35,22 @@ public class Weapon : MonoBehaviour
     public virtual void Shoot()
     {
     }
+    public virtual void RightClickAction()
+    {
+
+    }
     public virtual void StopShooting()
     {
+
+    }
+    public virtual void ChangeWeapon()
+    {
+
+    }
+    public void ForceStopShooting()
+    {
+        InvokeOnShootingEnd();
+        isShooting = false;
     }
     public virtual float GetShootClipPitch()
     {
