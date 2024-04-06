@@ -8,7 +8,7 @@ public class PlayerAnimator : MonoBehaviour
     private const string ENABLE_SCOPE = "EnableScope";
     private const string IS_SHOOTING = "IsShooting";
     private const string SHOOT_TRIGGER = "ShootTrigger";
-    private const string SECONDARY_ATTACK_TRIGGER= "SecondaryAttackTrigger";
+    private const string SECONDARY_ATTACK_TRIGGER = "SecondaryAttackTrigger";
 
     private const string RELOAD_TRIGGER = "ReloadTrigger";
     private const string CHANGE_WEAPON = "ChangeWeapon";
@@ -18,14 +18,14 @@ public class PlayerAnimator : MonoBehaviour
     private const string X = "x";
     private const string Y = "y";
     [SerializeField] private Animator animator;
-
+    private Animator weaponAnimator;
     private PlayerMotor playerMotor;
     private PlayerWeapon playerWeapon;
     private void Awake()
     {
         playerMotor = GetComponent<PlayerMotor>();
         playerWeapon = GetComponent<PlayerWeapon>();
-     
+
     }
     private void Start()
     {
@@ -90,6 +90,12 @@ public class PlayerAnimator : MonoBehaviour
     private void Weapon_OnShootingEnd(object sender, System.EventArgs e)
     {
         animator.SetBool(IS_SHOOTING, false);
+        if (weaponAnimator != null)
+        {
+            weaponAnimator.SetBool(IS_SHOOTING, false);
+
+        }
+
         // make idle the current animation so that animation blend tree works
         ResetIdleAnimation();
     }
@@ -98,6 +104,17 @@ public class PlayerAnimator : MonoBehaviour
     {
         animator.SetBool(IS_SHOOTING, true);
         animator.SetTrigger(SHOOT_TRIGGER);
+        if (weaponAnimator != null)
+        {
+            weaponAnimator.SetBool(IS_SHOOTING, true);
+            weaponAnimator.SetTrigger(SHOOT_TRIGGER);
+        }
+        else
+        {
+            Debug.Log("animator null");
+        }
+
+
     }
 
 
@@ -110,6 +127,7 @@ public class PlayerAnimator : MonoBehaviour
     {
         animator.SetInteger(WEAPON_TYPE, (int)playerWeapon.GetWeapon().GetWeaponType());
         animator.SetTrigger(CHANGE_WEAPON);
+        weaponAnimator = playerWeapon.GetWeapon().GetAnimator();
 
         // make idle the current animation so that animation blend tree works
         ResetIdleAnimation();

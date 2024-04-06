@@ -10,7 +10,7 @@ public class Gun : Weapon
     public static event EventHandler OnScopeEnabled;
     public static event EventHandler OnScopeDisabled;
 
-    [SerializeField] private GameObject muzzlePrefab;
+    [SerializeField] private GameObject muzzleFlash;
     [SerializeField] private float magCapacity;
     [SerializeField] private float bulletsLeft;
     [SerializeField] private float reloadTime;
@@ -19,8 +19,9 @@ public class Gun : Weapon
     [SerializeField] private LayerMask hitLayerMask;
     [SerializeField] private bool isScopeEnabled;
     [SerializeField] private GameObject bulletHitPrefab;
-
-
+    [Header("Pitch")]
+    [SerializeField] private float shootPitchMin;
+    [SerializeField] private float shootPitchMax;
     [Header("Recoil System")]
     [SerializeField] private Vector3 hipfireRecoil;
     [SerializeField] private Vector3 scopedRecoil;
@@ -30,7 +31,7 @@ public class Gun : Weapon
     [SerializeField] private float headshotDamage;
     [SerializeField] private float bodyshotDamage;
     [SerializeField] private float legshotDamage;
-    private Animator animator;
+
     private Recoil recoil;
     private Camera cam;
 
@@ -43,7 +44,9 @@ public class Gun : Weapon
     }
     private void Start()
     {
+
         bulletsLeft = magCapacity;
+        
 
     }
     private void Update()
@@ -104,10 +107,13 @@ public class Gun : Weapon
 
     public override void ChangeWeapon()
     {
+        muzzleFlash.SetActive(false);
         CancelReloading();
         DisableScope();
         ForceStopShooting();
+
     }
+
     public void EnableScope()
     {
         if (!isReloading && !isShooting)
@@ -177,8 +183,8 @@ public class Gun : Weapon
         SetBulletsLeft(GetBulletsLeft() - 1);
         recoil.RecoilFire();
         isShooting = true;
-        muzzlePrefab.SetActive(false); // if activated previously and not disabled yet, make sure it is disabled.
-        muzzlePrefab.SetActive(true);
+        muzzleFlash.SetActive(false); // if activated previously and not disabled yet, make sure it is disabled.
+        muzzleFlash.SetActive(true);
         InvokeOnShootingStarted();
     }
 
@@ -193,7 +199,14 @@ public class Gun : Weapon
         }
 
     }
-
+    private void OnEnable()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger("PullTrigger");
+            Debug.Log("pulll");
+        }
+    }
     public bool IsScopeEnabled()
     {
         return isScopeEnabled;
@@ -259,9 +272,7 @@ public class Gun : Weapon
     }
     public override float GetShootClipPitch()
     {
-        float pitch = UnityEngine.Random.Range(1.2f, 1.4f);
-        //pitch += Mathf.Sqrt(consecutiveShotCount / 30);
-        Debug.Log(pitch);
+        float pitch = UnityEngine.Random.Range(shootPitchMin,shootPitchMax);
         return pitch;
     }
     private void CreateBulletImpactEffect(RaycastHit rayHit)
@@ -270,4 +281,5 @@ public class Gun : Weapon
         GameObject hole = Instantiate(bulletHitPrefab, rayHit.point, Quaternion.identity);
 
     }
+ 
 }

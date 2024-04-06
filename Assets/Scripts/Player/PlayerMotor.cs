@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -31,6 +32,7 @@ public class PlayerMotor : MonoBehaviour
     private Vector3 playerVelocity;
 
     [SerializeField] private float slideTimer;
+    [SerializeField] private TextMeshProUGUI movementText;
     private PlayerWeapon playerWeapon;
 
     private void Awake()
@@ -60,9 +62,41 @@ public class PlayerMotor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         isGrounded = controller.isGrounded;
         HandleSliding();
         HandleCrouch();
+        UpdateMovementText();
+    }
+    private void UpdateMovementText()
+    {
+        if (!isGrounded)
+        {
+            movementText.text = "FLOATING";
+        }
+        else if (isSliding)
+        {
+            movementText.text = "SLIDING";
+        }
+        else if (isSprinting)
+        {
+            movementText.text = "SPRINTING";
+
+        }
+        else if (isCrouching)
+        {
+            movementText.text = "CROUCHING";
+
+        }
+        else if (isWalking)
+        {
+            movementText.text = "WALKING";
+        }
+        else
+        {
+            movementText.text = "STANDING STILL";
+        }
+        movementText.text += ". speed:" + speed.ToString("0.0");
     }
     private void HandleSliding()
     {

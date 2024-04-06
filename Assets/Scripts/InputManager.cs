@@ -56,14 +56,29 @@ public class InputManager : MonoBehaviour
             //Debug.Log("Input manager: gun is null");
             return;
         }
-        if (onFoot.Shoot.IsInProgress())
+        if (playerWeapon.GetWeapon().CanShootAutomatic())
         {
-            playerWeapon.Shoot();
+            if (onFoot.Shoot.IsInProgress())
+            {
+                playerWeapon.Shoot();
+            }
+            else
+            {
+                playerWeapon.StopShooting();
+            }
         }
         else
         {
-            playerWeapon.StopShooting();
+            if (onFoot.Shoot.WasPerformedThisFrame())
+            {
+                playerWeapon.Shoot();
+            }
+            else
+            {
+                playerWeapon.StopShooting();
+            }
         }
+        
 
     }
     private void HandleSprintInput()
