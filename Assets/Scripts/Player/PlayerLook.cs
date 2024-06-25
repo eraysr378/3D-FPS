@@ -1,19 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerLook : MonoBehaviour
+public class PlayerLook : NetworkBehaviour
 {
+    public static PlayerLook LocalInstance { get; private set; }
+
     [SerializeField] private float xSensitivity = 30f;
     [SerializeField] private float ySensitivity = 30f;
 
 
     [SerializeField] private Camera cam;
     private float xRotation = 0f;
-    private void Awake()
-    {
-    }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        if (IsOwner)
+        {
+            LocalInstance = this;
+            cam.gameObject.SetActive(true);
+        }
+    }
     public void ProcessLook(Vector2 input)
     {
 

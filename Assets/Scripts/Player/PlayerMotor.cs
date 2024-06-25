@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class PlayerMotor : MonoBehaviour
+public class PlayerMotor : NetworkBehaviour
 {
+    public static PlayerMotor LocalInstance { get; private set; }
+
     [SerializeField] private float walkSpeed = 5f;
     [SerializeField] private float sprintSpeed = 8f;
     [SerializeField] private float crouchSpeed = 8f;
@@ -37,11 +40,20 @@ public class PlayerMotor : MonoBehaviour
 
     private void Awake()
     {
+        
+
+
+    }
+    public override void OnNetworkSpawn()
+    {
+        if (IsOwner)
+        {
+            LocalInstance = this;
+        }
         controller = GetComponent<CharacterController>();
         playerWeapon = GetComponent<PlayerWeapon>();
         Weapon.OnShootingStarted += Weapon_OnShootingStarted;
-
-
+        movementText = GameObject.Find("/Canvas/MovementText").GetComponent<TextMeshProUGUI>();
     }
 
     private void Weapon_OnShootingStarted(object sender, System.EventArgs e)
@@ -62,7 +74,8 @@ public class PlayerMotor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (!IsOwner)
+            return;
         isGrounded = controller.isGrounded;
         HandleSliding();
         HandleCrouch();

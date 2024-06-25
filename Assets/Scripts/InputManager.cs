@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-public class InputManager : MonoBehaviour
+public class InputManager : NetworkBehaviour
 {
     public PlayerInput.OnFootActions onFoot;
 
@@ -10,11 +11,18 @@ public class InputManager : MonoBehaviour
     private PlayerMotor motor;
     private PlayerLook look;
     private PlayerWeapon playerWeapon;
-    // Start is called before the first frame update
     private void Awake()
     {
         playerInput = new PlayerInput();
         onFoot = playerInput.OnFoot;
+    }
+    // Start is called before the first frame update
+    public override void OnNetworkSpawn()
+    {
+        if (!IsOwner)
+            return;
+  
+      
         motor = GetComponent<PlayerMotor>();
         look = GetComponent<PlayerLook>();
         playerWeapon = GetComponent<PlayerWeapon>();
@@ -24,7 +32,6 @@ public class InputManager : MonoBehaviour
         onFoot.Reload.performed += ctx => playerWeapon.Reload();
         onFoot.Scope.performed += ctx => playerWeapon.RightClickAction();
 
-
     }
 
 
@@ -33,6 +40,7 @@ public class InputManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!IsOwner) return;
         // tell the player motor to move by giving the input
         motor.ProcessMove(onFoot.Movement.ReadValue<Vector2>());
         look.ProcessLook(onFoot.Look.ReadValue<Vector2>());
